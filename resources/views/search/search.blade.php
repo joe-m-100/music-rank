@@ -4,8 +4,7 @@
                 <h1>Artist Search</h1>
             </div>
 
-            <form method="POST" action="/search" class="w-full">
-                @csrf
+            <form method="GET" action="/search" class="w-full">
                 <div class="flex gap-5 w-full">
                     <x-form-input name="artist" id="artist" required placeholder="Enter Artist Name..." />
 

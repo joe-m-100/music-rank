@@ -23,18 +23,20 @@ class SpotifyController extends Controller
         return $access_token;
     }
 
-    // private function getArtistAlbums($id)
-    // {
-    //     $access_token = $this->getAccessToken();
+    private function getArtistAlbums(string $id)
+    {
+        $access_token = $this->getAccessToken();
 
-    //     // $query = $request->input('artist');
+        $response = Http::withToken($access_token)->get('https://api.spotify.com/v1/artists/'. $id . '/albums', [
+            'include_groups' => 'album',
+            'market' => 'GB',
+            'limit' => 50
+        ]);
 
-    //     $response = Http::withToken($access_token)->get('https://api.spotify.com/v1/search', [
-    //         'q' => $query,
-    //         'type' => 'artist',
-    //         'limit' => 5
-    //     ]);
-    // }
+        dd($response);
+
+        return $response;
+    }
 
     public function artist(Request $request)
     {
@@ -59,19 +61,23 @@ class SpotifyController extends Controller
 
     }
 
-    // public function albums($id)
-    // {
-    //     $albums = $this->getArtistAlbums($id);
-
-    //     return view('search.results', [
-    //         'results' => $albums,
-    //         'query' => 'Ablums',
-    //     ]);
-    // }
-
-
-    public function search()
+    public function albums($id)
     {
+        $albums = $this->getArtistAlbums($id);
+
+        return view('search.results', [
+            'results' => $albums,
+            'query' => 'Ablums',
+        ]);
+    }
+
+
+    public function search(Request $request)
+    {
+        if ($request->query('artist')) {
+            return $this->artist($request);
+        }
+
         return view('search.search');
     }
 }
