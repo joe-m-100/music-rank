@@ -1,7 +1,20 @@
 <?php
 
+use App\Http\Controllers\SpotifyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('homepage');
+});
+
+Route::get('/test', function () {
+    return view('test');
+});
+
+Route::post('/search', [SpotifyController::class, 'search']);
+
+// Search pages
+Route::controller(SpotifyController::class)->group(function () {
+    Route::get('/search', 'search');
+    Route::post('/search', 'artist');
 });
