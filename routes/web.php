@@ -16,5 +16,5 @@ Route::post('/search', [SpotifyController::class, 'search']);
 // Search pages
 Route::controller(SpotifyController::class)->group(function () {
     Route::get('/search', 'search');
-    Route::post('/search', 'artist');
+    // Route::get('/search', 'artist');
 });
