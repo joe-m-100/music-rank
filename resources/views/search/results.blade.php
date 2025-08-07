@@ -1,10 +1,6 @@
 <x-layout>
     <div class="text-center mb-10 text-[27px] font-bold">
-        @if ( $query === "Albums" )
-            <h1>Albums</h1>
-        @else
-            <h1>Search Results for "{{ $query }}"</h1>
-        @endif
+        <h1>{{ $heading }}</h1>
     </div>
 
     <div class="grid grid-cols-10 gap-5 w-full">

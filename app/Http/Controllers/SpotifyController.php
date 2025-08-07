@@ -83,9 +83,11 @@ class SpotifyController extends Controller
             ];
         }
 
+        $heading = str('Results for "?"')->replaceArray('?', [$query]);
+
         return view('search.results', [
             'results' => $results,
-            'query' => $query,
+            'heading' => $heading,
         ]);
 
 
@@ -98,7 +100,7 @@ class SpotifyController extends Controller
 
         return view('search.results', [
             'results' => $albums,
-            'query' => 'Ablums',
+            'heading' => 'Available Albums',
         ]);
     }
 
