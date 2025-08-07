@@ -23,6 +23,7 @@ class SpotifyController extends Controller
         return $access_token;
     }
 
+    // Get an artist's albums
     private function getArtistAlbums(string $id)
     {
         $access_token = $this->getAccessToken();
@@ -33,11 +34,27 @@ class SpotifyController extends Controller
             'limit' => 50
         ]);
 
-        dd($response);
+        $results = [];
+        if ($response->successful())
+        {
+            $albums = $response['items'];
 
-        return $response;
+            foreach ($albums as $album)
+            {
+                $img = $album['images'] ? $album['images'][0]['url'] : null;
+
+                $results[] = [
+                    'name' => $album['name'],
+                    'type' => 'Album',
+                    'image' => $img,
+                    'id' => $album['id']
+                ];
+            }
+        }
+        return $results;
     }
 
+    // Retreives Artists from API and loads them into the search results template
     public function artist(Request $request)
     {
         $access_token = $this->getAccessToken();
@@ -47,13 +64,27 @@ class SpotifyController extends Controller
         $response = Http::withToken($access_token)->get('https://api.spotify.com/v1/search', [
             'q' => $query,
             'type' => 'artist',
-            'limit' => 5
+            'limit' => 10
         ]);
 
         $artists = $response['artists']['items'];
 
+        $results = [];
+
+        foreach ($artists as $artist)
+        {
+            $img = $artist['images'] ? $artist['images'][0]['url'] : null;
+
+            $results[] = [
+                'name' => $artist['name'],
+                'type' => 'Artist',
+                'image' => $img,
+                'id' => $artist['id']
+            ];
+        }
+
         return view('search.results', [
-            'results' => $artists,
+            'results' => $results,
             'query' => $query,
         ]);
 
@@ -61,9 +92,9 @@ class SpotifyController extends Controller
 
     }
 
-    public function albums($id)
+    public function albums($artist_id)
     {
-        $albums = $this->getArtistAlbums($id);
+        $albums = $this->getArtistAlbums($artist_id);
 
         return view('search.results', [
             'results' => $albums,
@@ -72,6 +103,7 @@ class SpotifyController extends Controller
     }
 
 
+    // Artist search
     public function search(Request $request)
     {
         if ($request->query('artist')) {
