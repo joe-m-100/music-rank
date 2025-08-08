@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class SpotifyController extends Controller
 {
-
     private function getAccessToken()
     {
         $clientID = config('services.spotify.client_id');
@@ -21,6 +20,54 @@ class SpotifyController extends Controller
         $access_token = $auth_response->json()['access_token'];
 
         return $access_token;
+    }
+
+    private function getArtistEPs(string $id)
+    {
+        $access_token = $this->getAccessToken();
+
+        $offset = 0;
+        $finished = false;
+        $results = [];
+
+        while (! $finished) {
+            $response = Http::withToken($access_token)->get('https://api.spotify.com/v1/artists/'. $id . '/albums', [
+                'include_groups' => 'single',
+                'market' => 'GB',
+                'limit' => 50,
+                'offset' => $offset
+            ]);
+
+            if ($response->successful())
+            {
+                $singles = $response['items'];
+
+                foreach ($singles as $single)
+                {
+                    if ($single['total_tracks'] >= 3) {
+
+                        $img = $single['images'] ? $single['images'][0]['url'] : null;
+
+                        $results[] = [
+                            'name' => $single['name'],
+                            'type' => 'EP',
+                            'image' => $img,
+                            'id' => $single['id']
+                        ];
+                    }
+
+                }
+            }
+
+            if (count($singles) === 50) {
+                $offset += 50;
+            }
+            else {
+                $finished = true;
+            }
+        }
+
+        return $results;
     }
 
     // Get an artist's albums
@@ -97,10 +144,13 @@ class SpotifyController extends Controller
     public function albums($artist_id)
     {
         $albums = $this->getArtistAlbums($artist_id);
+        $eps = $this->getArtistEPs($artist_id);
+
+        $all_music = array_merge($albums, $eps);
 
         return view('search.results', [
-            'results' => $albums,
-            'heading' => 'Available Albums',
+            'results' => $all_music,
+            'heading' => 'Available Albums/EPs',
         ]);
     }
 
