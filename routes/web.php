@@ -15,7 +15,7 @@ Route::get('/not-found', function () {
     return view('not-found');
 });
 
-Route::post('/search', [SpotifyController::class, 'search']);
+//Route::post('/search', [SpotifyController::class, 'search']);
 
 // Search pages
 Route::controller(SpotifyController::class)->group(function () {

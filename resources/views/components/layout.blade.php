@@ -15,7 +15,7 @@
 
 <body class="bg-black text-white font-mono">
     <div class="px-10">
-        <nav class="flex justify-between items-center py-4 border-b border-white/20">
+        <nav class="bg-black px-10 flex justify-between items-center py-4 border-b border-white/20 z-10 w-full fixed top-0 lef-0 right-0">
             <div>
                 <x-link href="/" class="font-bold text-2xl text-bright-green">MusicRank</x-link>
             </div>
@@ -27,7 +27,7 @@
             </div>
         </nav>
 
-        <main class="mt-10 max-w-5xl mx-auto">
+        <main class="mt-25 max-w-5xl mx-auto">
             {{ $slot }}
         </main>
     </div>
