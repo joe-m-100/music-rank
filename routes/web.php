@@ -21,4 +21,5 @@ Route::get('/not-found', function () {
 Route::controller(SpotifyController::class)->group(function () {
     Route::get('/search', 'search');
     Route::get('/search/{artist_id}', 'albums');
+    Route::get('/search/tracks/{album_id}', 'tracks');
 });

@@ -22,6 +22,50 @@ class SpotifyController extends Controller
         return $access_token;
     }
 
+    private function getAlbum(string $id)
+    {
+        $access_token = $this->getAccessToken();
+
+        $response = Http::withToken($access_token)->get('https://api.spotify.com/v1/albums/'. $id, [
+            'market' => 'GB',
+        ]);
+
+
+
+        if ($response->successful())
+        {
+            $tracks = [];
+            $img = $response['images'] ? $response['images'][0]['url'] : null;
+
+            $album = [
+                'image' => $img,
+                'title' => $response['name']
+            ];
+
+            foreach ($response['tracks']['items'] as $track)
+            {
+                $duration = $track['duration_ms'] / 1000;
+                $artists = [];
+
+                foreach ($track['artists'] as $artist)
+                {
+                    $artists[] = $artist['name'];
+                }
+
+                $tracks[] = [
+                    'name' => $track['name'],
+                    'artists' => $artists,
+                    'duration' => $duration,
+                    'id' => $track['id']
+                ];
+            }
+
+            $album['tracks'] = $tracks;
+        }
+
+        return $album;
+    }
+
     private function getArtistEPs(string $id)
     {
         $access_token = $this->getAccessToken();
@@ -55,7 +99,6 @@ class SpotifyController extends Controller
                             'id' => $single['id']
                         ];
                     }
-
                 }
             }
 
@@ -69,6 +112,7 @@ class SpotifyController extends Controller
 
         return $results;
     }
+
 
     // Get an artist's albums
     private function getArtistAlbums(string $id)
@@ -136,9 +180,6 @@ class SpotifyController extends Controller
             'results' => $results,
             'heading' => $heading,
         ]);
-
-
-
     }
 
     public function albums($artist_id)
@@ -151,6 +192,16 @@ class SpotifyController extends Controller
         return view('search.results', [
             'results' => $all_music,
             'heading' => 'Available Albums/EPs',
+        ]);
+    }
+
+    public function tracks($album_id)
+    {
+        $album = $this->getAlbum($album_id);
+
+        return view('search.tracks-overview', [
+            'album' => $album,
+            'heading' => $album['title'],
         ]);
     }
 

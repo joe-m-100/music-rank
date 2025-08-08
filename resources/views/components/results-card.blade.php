@@ -5,7 +5,7 @@
         $link = '/search/' . $id;
     }
     else {
-        $link = '#';
+        $link = '/search/tracks/' . $id;
     }
 
 ?>
