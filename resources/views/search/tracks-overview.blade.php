@@ -3,7 +3,11 @@
         <div class="flex justify-between items-center  mb-10 ">
             <h1 class=" text-[27px] font-bold">{{ $heading }}</h1>
 
-            <x-link-button>Review</x-link-button>
+            <form method="POST" action="/review">
+                @csrf
+                <input type="hidden" name="data" id="data" value='{{ json_encode($album) }}'>
+                <x-form-button href="/review">Review</x-form-button>
+            </form>
         </div>
 
         <div class="flex flex-col gap-5">

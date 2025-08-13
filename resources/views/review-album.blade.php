@@ -1,12 +1,11 @@
 <x-layout>
-    <?php $temp = [['title' => 'One'], ['title' => 'Two'], ['title' => 'Three']] ?>
-    <div class="flex flex-col justify-center items-center w-[80%] mx-auto relative" x-data="{ index: 0, total: 2 }">
-        @foreach ($temp as $key => $item)
+    <div class="flex flex-col justify-center items-center w-[80%] mx-auto relative" x-data="{ index: 0, total: {{ count($album['tracks']) - 1 }} }">
+        @foreach ($album['tracks'] as $key => $track)
             <div class="contents absolute"
                  x-show="index === {{ $key }}"
             >
 
-                <x-review-card title="{{ $item['title'] }}"></x-review-card>
+                <x-review-card title="{{ $track['name'] }}"></x-review-card>
             </div>
         @endforeach
 

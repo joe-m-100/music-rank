@@ -4,7 +4,7 @@
     <img src="https://placehold.co/600x600" class="aspect-square object-cover">
 
     <div class="mt-5">
-        <h2 class="text-nowrap text-ellipsis overflow-hidden font-semibold text-lg">{{ $title }}</h2>
+        <h2 class="text-nowrap text-ellipsis overflow-hidden font-semibold text-lg">{{ html_entity_decode($title) }}</h2>
         <p class="text-nowrap text-ellipsis overflow-hidden text-white/75">Artists</p>
     </div>
 
