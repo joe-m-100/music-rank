@@ -5,7 +5,7 @@
                  x-show="index === {{ $key }}"
             >
 
-                <x-review-card title="{{ $track['name'] }}"></x-review-card>
+                <x-review-card title="{{ $track['name'] }}" image="{{ $album['image'] }}" :artists="$track['artists']"></x-review-card>
             </div>
         @endforeach
 

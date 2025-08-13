@@ -1,11 +1,23 @@
-@props(['title' => 'TITLE', 'artists' => '[]'])
+@props(['title' => 'TITLE', 'artists' => [], 'image' => 'https://placehold.co/600x600'])
+
+<?php
+    $contributors = '';
+    $last = end($artists);
+    foreach ($artists as $artist) {
+        $contributors .= $artist;
+
+        if ($artist != $last) {
+            $contributors .= ', ';
+        }
+    }
+?>
 
 <div class="flex flex-col bg-white/10 p-6 rounded-2xl w-[55%] gap-6">
-    <img src="https://placehold.co/600x600" class="aspect-square object-cover">
+    <img src="{{ $image }}" class="aspect-square object-cover">
 
     <div class="mt-5">
         <h2 class="text-nowrap text-ellipsis overflow-hidden font-semibold text-lg">{{ html_entity_decode($title) }}</h2>
-        <p class="text-nowrap text-ellipsis overflow-hidden text-white/75">Artists</p>
+        <p class="text-nowrap text-ellipsis overflow-hidden text-white/75">{{ $contributors }}</p>
     </div>
 
     <div class="grid grid-cols-10 gap-2 justify-between" x-data="{ selected: '5' }">
