@@ -19,7 +19,7 @@
 <div class="group bg-white/10 rounded-lg border-2 border-transparent hover:border-bright-green hover:bg-white/20">
     <div class="px-4 py-2 flex gap-2 items-center">
         <div class="w-[50%]">
-            <h2 class="font-semibold text-[16px] overflow-hidden overflow-ellipsis text-nowrap">{{ $title }}</h2>
+            <h2 class="font-semibold text-[16px] overflow-hidden overflow-ellipsis text-nowrap">{{ html_entity_decode($title) }}</h2>
         </div>
 
         <div class="w-[50%] font-normal text-white/75 text-[12px] flex justify-between">

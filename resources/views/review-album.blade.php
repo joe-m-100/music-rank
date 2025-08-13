@@ -26,6 +26,4 @@
             </x-link-button>
         </div>
     </div>
-
-
 </x-layout>

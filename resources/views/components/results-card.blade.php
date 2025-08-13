@@ -15,7 +15,7 @@
         <img src={{ $image }} alt="" class="w-full aspect-square object-cover p-4">
 
         <div class="w-full p-4">
-            <h2 class="text-[17px] font-bold group-hover:text-bright-green overflow-hidden overflow-ellipsis text-nowrap">{{ $title }}</h2>
+            <h2 class="text-[17px] font-bold group-hover:text-bright-green overflow-hidden overflow-ellipsis text-nowrap">{{ html_entity_decode($title) }}</h2>
 
             <p class="text-white/75">{{ $subtext }}</p>
         </div>

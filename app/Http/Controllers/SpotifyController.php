@@ -39,7 +39,8 @@ class SpotifyController extends Controller
 
             $album = [
                 'image' => $img,
-                'title' => $response['name']
+                'title' => $response['name'],
+                'artist' => $response['artists'][0]
             ];
 
             foreach ($response['tracks']['items'] as $track)
@@ -184,6 +185,7 @@ class SpotifyController extends Controller
 
     public function albums($artist_id)
     {
+
         $albums = $this->getArtistAlbums($artist_id);
         $eps = $this->getArtistEPs($artist_id);
 
