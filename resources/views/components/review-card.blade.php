@@ -1,15 +1,14 @@
 @props(['title' => 'TITLE', 'artists' => [], 'image' => 'https://placehold.co/600x600'])
 
 <?php
-    $contributors = '';
-    $last = end($artists);
+    $artists_text = '';
     foreach ($artists as $artist) {
-        $contributors .= $artist;
+        $artists_text .= $artist;
 
-        if ($artist != $last) {
-            $contributors .= ', ';
-        }
+        $artists_text .= ', ';
     }
+
+    $contributors = rtrim($artists_text, ', ');
 ?>
 
 <div class="flex flex-col bg-white/10 p-6 rounded-2xl w-[55%] gap-6">

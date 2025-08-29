@@ -1,15 +1,14 @@
 @props(['title' => 'TRACK_NAME', 'artists' => ['ARTIST_NAME', 'FEATURED_ARTIST'], 'duration' => 0])
 
 <?php
-    $contributors = '';
-    $last = end($artists);
+    $artists_text = '';
     foreach ($artists as $artist) {
-        $contributors .= $artist;
+        $artists_text .= $artist;
 
-        if ($artist != $last) {
-            $contributors .= ', ';
-        }
+        $artists_text .= ', ';
     }
+
+    $contributors = rtrim($artists_text, ', ');
 
     $mins = (int) ($duration / 60);
     $secs = round($duration % 60);

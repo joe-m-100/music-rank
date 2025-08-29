@@ -10,22 +10,24 @@
                 </div>
             @endforeach
 
-            <div class="w-[55%] mt-4 flex justify-between items-center">
-                <x-link-button class="text-sm bg-transparent text-bright-green mr-auto"
+            <div class="w-[55%] mt-4 grid grid-cols-3 gap-2 items-center">
+                <x-link-button class="text-sm bg-transparent text-bright-green mr-auto col-span-1 col-start-1"
                             x-show="index > 0"
                             @click="if (index > 0) index--"
                 >
                     Back
                 </x-link-button>
 
-                <x-link-button class="text-sm bg-transparent text-bright-green ml-auto"
+                <p class="mx-auto text-sm col-span-1 col-start-2" x-text="(index + 1) + ' of ' + (total + 1)"></p>
+
+                <x-link-button class="text-sm bg-transparent text-bright-green ml-auto col-span-1 col-start-3"
                             @click="if (index < total) index++"
                             x-show="index < total"
                 >
                     Next
                 </x-link-button>
 
-                <x-form-button class="ml-auto py-1.5" x-show="index === total">
+                <x-form-button class="ml-auto py-1.5 col-span-1 col-start-3" x-show="index === total">
                     Submit
                 </x-form-button>
             </div>
