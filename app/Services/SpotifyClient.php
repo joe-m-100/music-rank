@@ -73,7 +73,9 @@ class SpotifyClient
                 'id' => $response['id'],
                 'title' => $response['name'],
                 'artist' => $response['artists'][0],
+                'type' => $response['album_type'],
                 'tracks' => collect($response['tracks']['items'])->map(fn ($track) => [
+                                'id' => $track['id'],
                                 'name' => $track['name'],
                                 'duration' => $track['duration_ms'] / 1000,
                                 'artists' => collect($track['artists'])->map(function ($artist) {
@@ -162,6 +164,22 @@ class SpotifyClient
             return $results;
 
         });
+    }
+
+    public function getArtist(string $id)
+    {
+        $response =  $this->client()->get('/v1/artists/'. $id, []);
+
+        if (! $response->successful()) {
+                throw new \Exception('unable to find albums');
+        }
+
+        $results = [
+            'name' => $response['name'],
+            'image' => $response['images'] ? $response['images'][0]['url'] : null
+        ];
+
+        return $results;
     }
 
 }

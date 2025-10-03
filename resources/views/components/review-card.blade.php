@@ -1,4 +1,4 @@
-@props(['title' => 'TITLE', 'artists' => [], 'image' => 'https://placehold.co/600x600'])
+@props(['title' => 'TITLE', 'artists' => [], 'image' => 'https://placehold.co/600x600', 'id' => 'ID'])
 
 <?php
     $artists_text = '';
@@ -22,7 +22,7 @@
     <div class="grid grid-cols-10 gap-2 justify-between" x-data="{ selected: '5' }">
         @for ($i = 1; $i <= 10; $i++)
             <label class="cursor-pointer col-span-1">
-                <input type="radio" name="score" value="{{ $i }}" x-model="selected" class="sr-only peer">
+                <input type="radio" name="{{ $id }}" value="{{ $i }}" id="{{ $i }}" x-model="selected" class="sr-only peer">
 
                 <span class="text-sm flex items-center justify-center p-1 border rounded-sm"
                       :class="selected == '{{ $i }}' ? 'bg-bright-green border-bright-green text-black hover:text-black' : 'bg-transparent border-white/75 hover:border-bright-green hover:text-bright-green'">

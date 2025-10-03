@@ -26,4 +26,5 @@ Route::controller(SpotifyController::class)->group(function () {
 // Search pages
 Route::controller(ReviewController::class)->group(function () {
     Route::post('/review', 'review');
+    Route::post('/review-save/{album_id}', 'save');
 });

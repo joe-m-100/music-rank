@@ -1,12 +1,13 @@
 <x-layout>
-    <form method="POST" action="/" onsubmit="return confirm('Submit review?');">
-        <div class="flex flex-col justify-center items-center w-[80%] mx-auto relative" x-data="{ index: 0, total: {{ count($album['tracks']) - 1 }} }">
+    <form method="POST" action="/review-save/{{ $album['id'] }}">
+        @csrf
+        <div class="flex flex-col justify-center items-center w-[80%] mx-auto relative" x-data="{ submit: false, index: 0, total: {{ count($album['tracks']) - 1 }} }">
             @foreach ($album['tracks'] as $key => $track)
                 <div class="contents absolute"
                     x-show="index === {{ $key }}"
                 >
 
-                    <x-review-card title="{{ $track['name'] }}" image="{{ $album['image'] }}" :artists="$track['artists']"></x-review-card>
+                    <x-review-card title="{{ $track['name'] }}" image="{{ $album['image'] }}" :artists="$track['artists']" id="{{ $track['id'] }}"></x-review-card>
                 </div>
             @endforeach
 
@@ -27,10 +28,36 @@
                     Next
                 </x-link-button>
 
-                <x-form-button class="ml-auto py-1.5 col-span-1 col-start-3" x-show="index === total">
+                <x-link-button class="text-sm bg-transparent text-white hover:border-white hover:text-white ml-auto col-span-1 col-start-3"
+                            @click="submit = true"
+                            x-show="index === total"
+                >
                     Submit
-                </x-form-button>
+                </x-link-button>
+            </div>
+
+            <div class="bg-black/50 backdrop-blur-xl shadow-md py-5 px-5 items-center
+                          flex flex-col gap-20 justify-center w-[40%] absolute top-[15%] right-[30%] rounded-lg
+                        "
+                 x-show="submit"
+                 @click.outside="submit = false"
+            >
+                <span class="font-semibold text-lg text-bright-green">Confirm Review?</span>
+
+                <div class="flex justify-between w-full">
+                    <div class="text-white font-bold hover:cursor-pointer py-1 px-3 hover:bg-red-500/40 rounded-xl"
+                                @click="submit = false"
+                    >
+                        Cancel
+                    </div>
+
+                    <x-form-button>
+                        Confirm
+                    </x-form-button>
+                </div>
             </div>
         </div>
+
+        <input type="hidden" name="album" >
     </form>
 </x-layout>
