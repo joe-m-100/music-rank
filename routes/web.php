@@ -23,8 +23,10 @@ Route::controller(SpotifyController::class)->group(function () {
     Route::get('/search/tracks/{album_id}', 'tracks');
 });
 
-// Search pages
+// Review pages
 Route::controller(ReviewController::class)->group(function () {
     Route::post('/review', 'review');
     Route::post('/review-save/{album_id}', 'save');
+
+    Route::get('/reviewed-albums', 'index');
 });

@@ -71,4 +71,24 @@ class ReviewController extends Controller
 
         return redirect('/');
     }
+
+    public function index()
+    {
+        $albums = Album::orderBy('created_at', 'desc')
+            ->get()
+            ->collect()
+            ->map(function ($album) {
+                $avg_rating = Track::whereAlbumId($album['id'])->avg('rating');
+
+                return [
+                    'id' => $album['id'],
+                    'rating'=> number_format(round($avg_rating, 1), 1),
+                    'image' => $album['image'],
+                ];
+            });
+
+        return view('reviews.index', [
+            'albums' => $albums
+        ]);
+    }
 }
