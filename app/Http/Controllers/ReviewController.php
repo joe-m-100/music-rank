@@ -6,6 +6,7 @@ use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Track;
 use App\Services\SpotifyClient;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -15,6 +16,53 @@ class ReviewController extends Controller
         protected SpotifyClient $client
     )
     {
+    }
+
+    public function globals()
+    {
+        // Highest Album Rating
+        // Group tracks by album ID
+        // Get AVG rating of groups
+        // Get the highest rating
+        // Find that album ID
+        // Get the name of the album
+
+        $stats = [
+            [
+                'title' => 'Albums Reviewed',
+                'value' => Album::whereType('Album')->get()->count()
+            ],
+            [
+                'title' => 'Extended Plays Reviewed',
+                'value' => Album::whereType('EP')->get()->count()
+            ],
+            [
+                'title' => 'Total Tracks Reviewed',
+                'value' => Track::get()->count()
+            ],
+            [
+                'title' => 'Average Track Rating',
+                'value' => round(Track::get()->avg('rating'), 2)
+            ],
+            [
+                'title' => 'Average Album Rating',
+                'value' => round(Album::withAvg('tracks', 'rating')->get()->avg('tracks_avg_rating'), 2)
+            ],
+            [
+                'title' => 'Highest Rated Album',
+                'value' => Album::query()->withAvg('tracks', 'rating')->orderByDesc('tracks_avg_rating')->first()->title
+            ],
+            [
+                'title' => 'Perfect Tracks',
+                'value' => Track::whereRating(10)->count()
+            ],
+
+        ];
+
+        return view('reviews.global-statistics', [
+            'stats' => $stats,
+            'heading' => 'Global Statistics'
+        ]);
     }
 
     public function review(Request $request)
@@ -88,7 +136,8 @@ class ReviewController extends Controller
             });
 
         return view('reviews.index', [
-            'albums' => $albums
+            'albums' => $albums,
+            'heading' => 'All Reviews'
         ]);
     }
 }
