@@ -21,7 +21,7 @@
             <div class="space-x-6">
                 <x-link href="/search">Find an Album</x-link>
                 <x-link href="/reviewed-albums">Reviewed Ablums</x-link>
-                <x-link href="/">Global Stats</x-link>
+                <x-link href="/global-statistics">Global Stats</x-link>
             </div>
         </nav>
 

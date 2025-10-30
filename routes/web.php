@@ -29,4 +29,5 @@ Route::controller(ReviewController::class)->group(function () {
     Route::post('/review-save/{album_id}', 'save');
 
     Route::get('/reviewed-albums', 'index');
+    Route::get('/global-statistics', 'globals');
 });

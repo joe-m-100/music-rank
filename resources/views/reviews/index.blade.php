@@ -1,4 +1,6 @@
 <x-layout>
+    <h1 class=" text-[27px] font-bold mb-10">{{ $heading }}</h1>
+
     <div class="grid grid-cols-4 gap-5">
         @foreach ($albums as $album)
             <div class="col-span-1">
