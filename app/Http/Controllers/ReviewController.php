@@ -9,6 +9,7 @@ use App\Services\SpotifyClient;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use PHPUnit\Event\Telemetry\Duration;
 
 class ReviewController extends Controller
 {
@@ -20,12 +21,6 @@ class ReviewController extends Controller
 
     public function globals()
     {
-        // Highest Album Rating
-        // Group tracks by album ID
-        // Get AVG rating of groups
-        // Get the highest rating
-        // Find that album ID
-        // Get the name of the album
 
         $stats = [
             [
@@ -138,6 +133,81 @@ class ReviewController extends Controller
         return view('reviews.index', [
             'albums' => $albums,
             'heading' => 'All Reviews'
+        ]);
+    }
+
+    public function analysis($album_id)
+    {
+        $album = Album::query()->whereId($album_id)->first();
+        $tracks = Track::query()->whereAlbumId($album_id)->get();
+
+        // Calculate duration of album
+        $duration = $tracks->sum('duration');
+
+        $hours = (int) ($duration / 3600);
+        $mins = (int) (($duration / 60) % 60);
+
+        $album_duration = $hours ? $hours . ' hrs ' . $mins . ' mins' : $mins . ' mins';
+
+        $range = $tracks->max('rating') - $tracks->min('rating');
+        $mean = round($tracks->avg('rating'), 2);
+
+        $line_chart_ratings = $tracks->collect()->map(function ($track, $n) {
+            return [
+                'x' => $n + 1,
+                'y' => $track['rating'],
+            ];
+        });
+
+        $line_chart_mean = $tracks->collect()->map(function ($track, $n) use ($mean) {
+            return [
+                'x' => $n + 1,
+                'y' => $mean,
+            ];
+        });
+
+        $current_sum = 0;
+        $line_chart_sentiment = $tracks->collect()->map(function ($track, $n) use (&$current_sum) {
+            $current_sum += $track['rating'];
+
+            return [
+                'x' => $n + 1,
+                'y' => round(($current_sum) / ($n + 1), 2),
+            ];
+        });
+
+        $line_chart_data = [
+            'ratings' => $line_chart_ratings,
+            'mean' => $line_chart_mean,
+            'sentiment' => $line_chart_sentiment,
+        ];
+
+        $core_stats = [
+            [
+                'name' => 'Overall Rating',
+                'value' => $mean
+            ],
+            [
+                'name' => 'Total Duration',
+                'value' => $album_duration
+            ],
+            [
+                'name' => 'Range',
+                'value' => $range
+            ],
+            [
+                'name' => 'Controversy Index',
+                'value' => round($range / $mean, 2)
+            ],
+        ];
+
+
+        return view('reviews.analysis', [
+            'album' => $album,
+            'tracks' => $tracks->collect(),
+            'heading' => $album->title,
+            'line_chart_data' => $line_chart_data,
+            'core_stats' => $core_stats
         ]);
     }
 }

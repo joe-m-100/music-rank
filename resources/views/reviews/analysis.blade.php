@@ -1,0 +1,49 @@
+@php
+    $album_length = $tracks->count();
+@endphp
+
+
+<x-layout>
+    <h1 class=" text-[34px] font-bold mb-10">{{ $heading }}</h1>
+
+    <div class="grid grid-cols-5 gap-3">
+        <div class="col-start-1 col-span-4">
+            <script src="https://d3js.org/d3.v7.min.js"></script>
+
+            <script>
+                window.chartData = @json($line_chart_data);
+            </script>
+
+            @vite('resources/js/line_chart_script.js')
+
+            <div
+                id="lineChartContainer"
+                class="
+                    px-3 py-4 bg-white/10 rounded-lg aspect-video
+                    border border-white/75 hover:border-white w-full
+                    "
+            >
+            </div>
+        </div>
+
+        <div
+            class="
+                col-span-2
+                px-4 py-2 bg-white/10 rounded-lg aspect-video
+                border border-white/75 hover:border-white
+                "
+        >
+            <div class="font-semibold text-lg mb-2">
+                Core Stats
+            </div>
+
+            @foreach ($core_stats as $stat)
+                <div class="flex justify-between">
+                    {{ $stat['name'] }} <span class="text-white/75">{{ $stat['value'] }}</span>
+                </div>
+            @endforeach
+        </div>
+
+    </div>
+
+</x-layout>

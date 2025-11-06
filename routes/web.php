@@ -30,4 +30,6 @@ Route::controller(ReviewController::class)->group(function () {
 
     Route::get('/reviewed-albums', 'index');
     Route::get('/global-statistics', 'globals');
+
+    Route::get('/analysis/{album_id}', 'analysis');
 });
