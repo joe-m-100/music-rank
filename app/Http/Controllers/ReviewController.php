@@ -9,6 +9,7 @@ use App\Services\SpotifyClient;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Telemetry\Duration;
 
 class ReviewController extends Controller
@@ -112,9 +113,56 @@ class ReviewController extends Controller
         return $bar_chart_data;
     }
 
-    private function calculateArtistStatistics($album_id)
+    private function calculateArtistStatistics($artist_id)
     {
-
+        $artist = Artist::query()->whereId($artist_id)->first();
+        return [
+            'name' => $artist->name,
+            'image' => $artist->image,
+            'stats' => [
+                [
+                    'name' => 'Album/EP Reviews',
+                    'value' => Album::query()->whereArtistId($artist_id)->count(),
+                ],
+                [
+                    'name' => 'Average Score',
+                    'value' => round(Album::query()
+                        ->whereArtistId($artist_id)
+                        ->withAvg('tracks', 'rating')
+                        ->get()
+                        ->avg('tracks_avg_rating'), 2),
+                ],
+                [
+                    'name' => 'Magnum Opus',
+                    'value' => Album::query()
+                        ->whereArtistId($artist_id)
+                        ->withAvg('tracks', 'rating')
+                        ->orderByDesc('tracks_avg_rating')
+                        ->first()->title,
+                ],
+                [
+                    'name' => 'Perfect Tracks',
+                    'value' => Track::whereRating(10)->whereHas('album.artist', function ($query) use ($artist_id) {
+                        $query->where('id', $artist_id);
+                    })->count()
+                ],
+                [
+                    'name' => 'Terrible Tracks',
+                    'value' => Track::whereRating(1)->whereHas('album.artist', function ($query) use ($artist_id) {
+                        $query->where('id', $artist_id);
+                    })->count()
+                ],
+                [
+                    'name' => 'Most Common Rating',
+                    'value' => DB::table('tracks')
+                        ->join('albums', 'tracks.album_id', '=', 'albums.id')
+                        ->where('albums.artist_id', $artist_id)
+                        ->select('tracks.rating', DB::raw('COUNT(*) as count'))
+                        ->groupBy('tracks.rating')
+                        ->orderByDesc('count')->first()->rating
+                ],
+            ]
+        ];
     }
 
     public function globals()
@@ -243,7 +291,7 @@ class ReviewController extends Controller
         $core_stats = $this->calculateCoreStatistics($tracks, $mean);
         $line_chart_data = $this->createLineChartData($tracks, $mean);
         $bar_chart_data = $this->createBarChartData($tracks);
-        $artist_stats = null;
+        $artist_stats = $this->calculateArtistStatistics($album->artist_id);
 
         $top_tracks = $tracks->sortByDesc('rating')->take(3)->values();
 
@@ -254,6 +302,7 @@ class ReviewController extends Controller
             'line_chart_data' => $line_chart_data,
             'bar_chart_data' => $bar_chart_data,
             'core_stats' => $core_stats,
+            'artist' => $artist_stats,
             'top_tracks' => $top_tracks,
         ]);
     }

@@ -51,7 +51,7 @@
                 border border-white/75 hover:border-white
                 "
         >
-            <div class="font-semibold text-lg mb-2">
+            <div class="font-semibold text-lg mb-5">
                 Top Tracks
             </div>
 
@@ -79,6 +79,52 @@
                     "
             >
             </div>
+        </div>
+
+        <div
+            class="
+                col-start-1 col-span-1 row-start-3 row-span-1
+                bg-white/10 rounded-lg overflow-clip relative
+                border border-white/75 hover:border-white
+                "
+        >
+            <div class=" w-full rounded-lg">
+                <img
+                    src="{{ $artist['image'] }}"
+                    alt="Artist Image"
+                    class="aspect-auto object-cover object-center h-full"
+                >
+            </div>
+        </div>
+
+        <div
+            class="
+                col-start- col-span-1 row-start-3 row-span-1
+                bg-white/10 rounded-lg py-2 px-4
+                border border-white/75 hover:border-white
+                "
+        >
+            <div class="font-semibold text-lg mb-5">
+                Features
+            </div>
+        </div>
+
+        <div
+            class="
+                col-start-1 col-span-2 py-2 px-4
+                bg-white/10 rounded-lg h-full
+                border border-white/75 hover:border-white
+                "
+        >
+            <div class="font-semibold text-lg mb-3">
+                {{ $artist['name'] }}
+            </div>
+
+            @foreach ($artist['stats'] as $stat)
+                <div class="flex justify-between line-clamp-1">
+                    {{ $stat['name'] }} <span class="text-white/75 ml-2 whitespace-nowrap overflow-hidden text-ellipsis">{{ $stat['value'] }}</span>
+                </div>
+            @endforeach
         </div>
 
     </div>
