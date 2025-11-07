@@ -19,6 +19,104 @@ class ReviewController extends Controller
     {
     }
 
+    private function calculateCoreStatistics($tracks, $mean)
+    {
+        // Calculate duration of album
+        $duration = $tracks->sum('duration');
+
+        $hours = (int) ($duration / 3600);
+        $mins = (int) (($duration / 60) % 60);
+
+        $album_duration = $hours ? $hours . ' hrs ' . $mins . ' mins' : $mins . ' mins';
+
+        $range = $tracks->max('rating') - $tracks->min('rating');
+
+        $x = $tracks->select('rating')
+            ->flatten()
+            ->map(function ($value) use ($mean) {
+                return pow(($value - $mean), 2);
+            })
+            ->all();
+
+        $std_dev = sqrt(array_sum($x) / $tracks->count());
+
+        return [
+            [
+                'name' => 'Overall Rating',
+                'value' => $mean
+            ],
+            [
+                'name' => 'Total Duration',
+                'value' => $album_duration
+            ],
+            [
+                'name' => 'Range',
+                'value' => $range
+            ],
+            [
+                'name' => 'Standard Deviation',
+                'value' => round($std_dev, 2)
+            ],
+            [
+                'name' => 'Controversy Index',
+                'value' => round($range / $mean, 2)
+            ],
+        ];
+    }
+
+    private function createLineChartData($tracks, $mean)
+    {
+        // Line Chart data
+        $line_chart_ratings = $tracks->collect()->map(function ($track, $n) {
+            return [
+                'x' => $n + 1,
+                'y' => $track['rating'],
+            ];
+        });
+
+        $line_chart_mean = $tracks->collect()->map(function ($track, $n) use ($mean) {
+            return [
+                'x' => $n + 1,
+                'y' => $mean,
+            ];
+        });
+
+        $current_sum = 0;
+        $line_chart_sentiment = $tracks->collect()->map(function ($track, $n) use (&$current_sum) {
+            $current_sum += $track['rating'];
+
+            return [
+                'x' => $n + 1,
+                'y' => round(($current_sum) / ($n + 1), 2),
+            ];
+        });
+
+        return [
+            'ratings' => $line_chart_ratings,
+            'mean' => $line_chart_mean,
+            'sentiment' => $line_chart_sentiment,
+        ];
+    }
+
+    private function createBarChartData($tracks)
+    {
+        $bar_chart_data = [];
+
+        for ($n = 0; $n < 10; $n++) {
+            $bar_chart_data[] = [
+                'category' => ( $n + 1 ),
+                'value' => $tracks->where('rating', ($n+1))->count(),
+            ];
+        }
+
+        return $bar_chart_data;
+    }
+
+    private function calculateArtistStatistics($album_id)
+    {
+
+    }
+
     public function globals()
     {
 
@@ -141,73 +239,22 @@ class ReviewController extends Controller
         $album = Album::query()->whereId($album_id)->first();
         $tracks = Track::query()->whereAlbumId($album_id)->get();
 
-        // Calculate duration of album
-        $duration = $tracks->sum('duration');
-
-        $hours = (int) ($duration / 3600);
-        $mins = (int) (($duration / 60) % 60);
-
-        $album_duration = $hours ? $hours . ' hrs ' . $mins . ' mins' : $mins . ' mins';
-
-        $range = $tracks->max('rating') - $tracks->min('rating');
         $mean = round($tracks->avg('rating'), 2);
+        $core_stats = $this->calculateCoreStatistics($tracks, $mean);
+        $line_chart_data = $this->createLineChartData($tracks, $mean);
+        $bar_chart_data = $this->createBarChartData($tracks);
+        $artist_stats = null;
 
-        $line_chart_ratings = $tracks->collect()->map(function ($track, $n) {
-            return [
-                'x' => $n + 1,
-                'y' => $track['rating'],
-            ];
-        });
-
-        $line_chart_mean = $tracks->collect()->map(function ($track, $n) use ($mean) {
-            return [
-                'x' => $n + 1,
-                'y' => $mean,
-            ];
-        });
-
-        $current_sum = 0;
-        $line_chart_sentiment = $tracks->collect()->map(function ($track, $n) use (&$current_sum) {
-            $current_sum += $track['rating'];
-
-            return [
-                'x' => $n + 1,
-                'y' => round(($current_sum) / ($n + 1), 2),
-            ];
-        });
-
-        $line_chart_data = [
-            'ratings' => $line_chart_ratings,
-            'mean' => $line_chart_mean,
-            'sentiment' => $line_chart_sentiment,
-        ];
-
-        $core_stats = [
-            [
-                'name' => 'Overall Rating',
-                'value' => $mean
-            ],
-            [
-                'name' => 'Total Duration',
-                'value' => $album_duration
-            ],
-            [
-                'name' => 'Range',
-                'value' => $range
-            ],
-            [
-                'name' => 'Controversy Index',
-                'value' => round($range / $mean, 2)
-            ],
-        ];
-
+        $top_tracks = $tracks->sortByDesc('rating')->take(3)->values();
 
         return view('reviews.analysis', [
             'album' => $album,
             'tracks' => $tracks->collect(),
             'heading' => $album->title,
             'line_chart_data' => $line_chart_data,
-            'core_stats' => $core_stats
+            'bar_chart_data' => $bar_chart_data,
+            'core_stats' => $core_stats,
+            'top_tracks' => $top_tracks,
         ]);
     }
 }

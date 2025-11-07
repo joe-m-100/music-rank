@@ -99,7 +99,9 @@ function drawChart(data) {
 
     // Calculate best position for legend
 
-    // FYI: I'm fully aware that this code is not good, can't think of a better way right now though
+    // FYI: I'm fully aware that this code is not good, can't think of a better way right now
+
+    // It works though! :)
     var top_right = true;
     var bottom_right = true;
     var top_left = true;
@@ -145,7 +147,7 @@ function drawChart(data) {
     .enter()
     .append("circle")
         .attr("cx", pos['x'] + "%")
-        .attr("cy", function(d,i){ return pos['y'] + i*5 + "%"}) // 200 is where the first dot appears. 25 is the distance between dots
+        .attr("cy", function(d,i){ return pos['y'] + i*5 + "%"})
         .attr("r", 7)
         .style("fill", function(d,i){ return colour[i]})
 
@@ -155,7 +157,7 @@ function drawChart(data) {
     .enter()
     .append("text")
         .attr("x", (pos['x'] + 2) + "%")
-        .attr("y", function(d,i){ return pos['y'] + i*5 + "%"}) // 200 is where the first dot appears. 25 is the distance between dots
+        .attr("y", function(d,i){ return pos['y'] + i*5 + "%"})
         .style("fill", "white")
         .text(function(d){ return d})
         .attr("text-anchor", "left")
@@ -184,5 +186,5 @@ function drawChart(data) {
 }
 
 
-drawChart(window.chartData);
-window.addEventListener("resize", drawChart(window.chartData));
+drawChart(window.lineChartData);
+window.addEventListener("resize", drawChart(window.lineChartData));
