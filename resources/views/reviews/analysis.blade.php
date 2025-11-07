@@ -7,7 +7,7 @@
     <h1 class=" text-[34px] font-bold mb-10">{{ $heading }}</h1>
 
     <div class="grid grid-cols-6 gap-3">
-        <div class="col-start-1 col-span-4 row-span-2">
+        <div class="col-start-1 col-span-4 row-span-2 border border-white/75 hover:border-white rounded-lg">
             <script src="https://d3js.org/d3.v7.min.js"></script>
 
             <script>
@@ -19,8 +19,8 @@
             <div
                 id="lineChartContainer"
                 class="
-                    px-3 py-4 bg-white/10 rounded-lg aspect-video
-                    border border-white/75 hover:border-white w-full
+                    px-3 py-4 bg-white/10 aspect-video
+                    w-full
                     "
             >
             </div>
@@ -55,9 +55,9 @@
                 Top Tracks
             </div>
 
-            <ol class="flex flex-col gap-2">
+            <ol class="flex flex-col gap-3">
                 @foreach ($top_tracks as $n => $track)
-                    <li class="text-white/75 line-clamp-1">
+                    <li class="text-white/80 first:text-white last:text-white/70 line-clamp-1">
                         {{ ($n + 1) . '. ' . $track['name'] }}
                     </li>
                 @endforeach
