@@ -1,4 +1,59 @@
 
+function calculateIdealLegendPosition(ratings) {
+    const positions = [
+        {
+            position: {'x': 80, 'y': 2}, // Top right
+            rect: [
+                [ 0.75 * ratings.length, 9 ],
+                [ ratings.length, 10 ],
+            ],
+        },
+        {
+            position: {'x': 80, 'y': 70}, // Bottom right
+            rect: [
+                [ 0.75 * ratings.length, 1 ],
+                [ ratings.length, 3 ],
+            ],
+        },
+        {
+            position: {'x': 2, 'y': 2}, // Top Left
+            rect: [
+                [ 1, 9 ],
+                [ 0.25 * ratings.length, 10 ],
+            ],
+        },
+        {
+            position: {'x': 2, 'y': 70}, // Bottom Left
+            rect: [
+                [ 1, 1 ],
+                [ 0.25 * ratings.length, 3 ],
+            ],
+        },
+    ];
+
+    const valid = positions.filter(position => {
+        console.log("RESET");
+        return ratings.every(rating => {
+            const x = rating.x;
+
+            const rating_doesnt_intersect = ! (
+                (x >= position.rect[0][0] && position.rect[1][0] >= x)
+                &&
+                (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1])
+            );
+
+            // console.log(position.rect[0][0] + ' < ' + x + ' < ' + position.rect[1][0], (x >= position.rect[0][0] && position.rect[1][0] >= x));
+            // console.log(position.rect[0][1] + ' < ' + rating.y + ' < ' + position.rect[1][1], (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1]));
+            // console.log(!rating_doesnt_intersect);
+
+            return rating_doesnt_intersect;
+        });
+    });
+
+    console.log(valid);
+    return valid[0]?.position || positions[0].position;
+}
+
 
 function drawChart(data) {
 
@@ -87,59 +142,7 @@ function drawChart(data) {
     const keys = ["Ratings", "Mean", "Sentiment"];
     const colour = ["#18DB5C", "red", "yellow"];
 
-    const legend_positions = [
-        {'x': 80, 'y': 2},
-        {'x': 80, 'y': 70},
-        {'x': 2, 'y': 2},
-        {'x': 2, 'y': 70},
-    ];
-
-    var pos;
-
-
-    // Calculate best position for legend
-
-    // FYI: I'm fully aware that this code is not good, can't think of a better way right now
-
-    // It works though! :)
-    var top_right = true;
-    var bottom_right = true;
-    var top_left = true;
-    var bottom_left = true;
-
-    var iterations = Math.ceil(dataset_ratings.length * 0.25);
-
-    for (let i = 0; i < iterations; i++) {
-        if (dataset_ratings[i]['y'] > 8) {
-            top_left = false;
-        }
-        else if (dataset_ratings[i]['y'] < 3) {
-            bottom_left = false;
-
-        }
-
-        var index = dataset_ratings.length - (i + 1);
-
-        if (dataset_ratings[index]['y'] > 8) {
-            top_right = false;
-        }
-        else if (dataset_ratings[index]['y'] < 3) {
-            bottom_right = false;
-        }
-    }
-
-    if (top_right && dataset_mean[0]['y'] < 8) {
-        pos = legend_positions[0]
-    }
-    else if (bottom_right && dataset_mean[0]['y'] > 3) {
-        pos = legend_positions[1]
-    }
-    else if (top_left && dataset_mean[0]['y'] < 8) {
-        pos = legend_positions[2]
-    }
-    else {
-        pos = legend_positions[3]
-    }
+    const pos = calculateIdealLegendPosition(dataset_ratings);
 
     // Add one dot in the legend for each name.
     g.selectAll("mydots")

@@ -25,7 +25,6 @@ function drawChart(data) {
 
 
     const dataset = data;
-    console.log(dataset);
 
     const x = d3.scaleBand()
         .domain(dataset.map(d => d.category))

@@ -8,6 +8,7 @@ use App\Models\Track;
 use App\Services\SpotifyClient;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Event\Telemetry\Duration;
@@ -65,17 +66,17 @@ class ReviewController extends Controller
         ];
     }
 
-    private function createLineChartData($tracks, $mean)
+    private function createLineChartData(Collection $tracks, $mean)
     {
         // Line Chart data
-        $line_chart_ratings = $tracks->collect()->map(function ($track, $n) {
+        $line_chart_ratings = $tracks->map(function ($track, $n) {
             return [
                 'x' => $n + 1,
                 'y' => $track['rating'],
             ];
         });
 
-        $line_chart_mean = $tracks->collect()->map(function ($track, $n) use ($mean) {
+        $line_chart_mean = $tracks->map(function ($track, $n) use ($mean) {
             return [
                 'x' => $n + 1,
                 'y' => $mean,
@@ -83,7 +84,7 @@ class ReviewController extends Controller
         });
 
         $current_sum = 0;
-        $line_chart_sentiment = $tracks->collect()->map(function ($track, $n) use (&$current_sum) {
+        $line_chart_sentiment = $tracks->map(function ($track, $n) use (&$current_sum) {
             $current_sum += $track['rating'];
 
             return [

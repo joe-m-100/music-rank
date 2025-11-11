@@ -7,7 +7,7 @@
     <h1 class=" text-[34px] font-bold mb-10">{{ $heading }}</h1>
 
     <div class="grid grid-cols-6 gap-3">
-        <div class="col-start-1 col-span-4 row-span-2 border border-white/75 hover:border-white rounded-lg">
+        <div class="col-start-1 col-span-4 row-span-2 border border-white/75 hover:border-white rounded-lg bg-white/10">
             <script src="https://d3js.org/d3.v7.min.js"></script>
 
             <script>
@@ -19,7 +19,7 @@
             <div
                 id="lineChartContainer"
                 class="
-                    px-3 py-4 bg-white/10 aspect-video
+                    px-3 py-4  aspect-video
                     w-full
                     "
             >
@@ -121,7 +121,7 @@
             </div>
 
             @foreach ($artist['stats'] as $stat)
-                <div class="flex justify-between line-clamp-1">
+                <div class="flex justify-between line-clamp-1 overflow-hidden text-ellipsis">
                     {{ $stat['name'] }} <span class="text-white/75 ml-2 whitespace-nowrap overflow-hidden text-ellipsis">{{ $stat['value'] }}</span>
                 </div>
             @endforeach
