@@ -122,7 +122,7 @@
 
             @foreach ($artist['stats'] as $stat)
                 <div class="flex justify-between line-clamp-1 overflow-hidden text-ellipsis">
-                    {{ $stat['name'] }} <span class="text-white/75 ml-2 whitespace-nowrap overflow-hidden text-ellipsis">{{ $stat['value'] }}</span>
+                    <span class="whitespace-nowrap">{{ $stat['name'] }}</span> <span class="text-white/75 ml-5 whitespace-nowrap overflow-hidden text-ellipsis">{{ $stat['value'] }}</span>
                 </div>
             @endforeach
         </div>

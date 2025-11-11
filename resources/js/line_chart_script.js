@@ -42,10 +42,6 @@ function calculateIdealLegendPosition(ratings) {
                 (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1])
             );
 
-            // console.log(position.rect[0][0] + ' < ' + x + ' < ' + position.rect[1][0], (x >= position.rect[0][0] && position.rect[1][0] >= x));
-            // console.log(position.rect[0][1] + ' < ' + rating.y + ' < ' + position.rect[1][1], (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1]));
-            // console.log(!rating_doesnt_intersect);
-
             return rating_doesnt_intersect;
         });
     });
