@@ -31,19 +31,18 @@ function calculateIdealLegendPosition(ratings) {
         },
     ];
 
+    function isIntersecting(position, rating) {
+        const x = rating.x;
+
+        return (
+            (x >= position.rect[0][0] && position.rect[1][0] >= x)
+            &&
+            (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1])
+        );
+    }
+
     const valid = positions.filter(position => {
-        console.log("RESET");
-        return ratings.every(rating => {
-            const x = rating.x;
-
-            const rating_doesnt_intersect = ! (
-                (x >= position.rect[0][0] && position.rect[1][0] >= x)
-                &&
-                (position.rect[0][1] <= rating.y && rating.y <= position.rect[1][1])
-            );
-
-            return rating_doesnt_intersect;
-        });
+        return ! ratings.some(rating => isIntersecting(position, rating));
     });
 
     console.log(valid);

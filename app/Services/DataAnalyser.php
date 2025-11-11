@@ -184,7 +184,7 @@ class DataAnalyser
             ],
             [
                 'title' => 'Highest Rated Album',
-                'value' => Album::query()->withAvg('tracks', 'rating')->orderByDesc('tracks_avg_rating')->first()->title
+                'value' => Album::query()->withAvg('tracks', 'rating')->orderByDesc('tracks_avg_rating')->first()?->title ?: 'None'
             ],
             [
                 'title' => 'Perfect Tracks',
@@ -201,5 +201,19 @@ class DataAnalyser
             'line_chart' => $this->createLineChartData($tracks, $mean),
             'bar_chart' => $this->createBarChartData($tracks)
         ];
+    }
+
+    public function getFeaturedArtists(Collection $tracks, string $artist_name): Collection
+    {
+        return $tracks->sortByDesc('rating')
+            ->select('artists')
+            ->flatten()
+            ->flatMap(function ($artists) use ($artist_name) {
+                return array_diff(explode(';', $artists), [$artist_name]);
+            })
+            ->unique()
+            ->filter()
+            ->take(5)
+            ->values();
     }
 }

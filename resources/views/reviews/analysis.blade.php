@@ -104,9 +104,23 @@
                 border border-white/75 hover:border-white
                 "
         >
-            <div class="font-semibold text-lg mb-5">
-                Features
+            <div class="font-semibold text-[16px] mb-3">
+                Top Features
             </div>
+
+            @if ($features)
+                <ol class="flex flex-col gap-2">
+                    @foreach ($features as $n => $feature)
+                        <li class="text-white/80 first:text-white text-[12px] last:text-white/70 line-clamp-1">
+                            {{ ($n + 1) . '. ' . $feature }}
+                        </li>
+                    @endforeach
+                </ol>
+            @else
+                <div>
+                    No features.
+                </div>
+            @endif
         </div>
 
         <div

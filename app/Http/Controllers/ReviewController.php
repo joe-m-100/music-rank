@@ -41,6 +41,29 @@ class ReviewController extends Controller
         ]);
     }
 
+
+    protected ?\StdClass $object;
+
+    public function object()
+    {
+        // $array = [null];
+
+        // $doesntexist[0] ?? 10; // doesn't throw
+        // ($doesntexist)[0] ?? 10; // throws
+
+        // $expression ?: $fallback;
+        // $_stored = (expression) ? $_stored : $fallback;
+
+        // $a = 10;
+        // $a ?: $fallback;
+        // $a += 1 ?: $fallback;
+        // $a += 1 ? $a += 1 : $fallback;
+
+
+        return $this->object ??= new \StdClass;
+    }
+
+
     public function save(Request $request, $album_id)
     {
         $album = $this->client->getAlbum($album_id);
@@ -77,7 +100,7 @@ class ReviewController extends Controller
                     'album_id' => $album_entry->id,
                     'name' => $track['name'],
                     'image' => $album['image'],
-                    'artists' => $track['artists']->implode(','),
+                    'artists' => $track['artists']->implode(';'),
                     'duration' => $track['duration'],
                 ],
                 [
@@ -121,6 +144,8 @@ class ReviewController extends Controller
         $chart_data = $this->analyser->getChartData($tracks, $mean);
         $top_tracks = $tracks->sortByDesc('rating')->take(3)->values();
 
+        $features = $this->analyser->getFeaturedArtists($tracks, $artist_stats['name']);
+
         return view('reviews.analysis', [
             'album' => $album,
             'tracks' => $tracks->collect(),
@@ -130,6 +155,7 @@ class ReviewController extends Controller
             'core_stats' => $core_stats,
             'artist' => $artist_stats,
             'top_tracks' => $top_tracks,
+            'features' => $features,
         ]);
     }
 }
