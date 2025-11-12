@@ -26,6 +26,35 @@ function drawChart(data) {
 
     const dataset = data;
 
+    // Create Tooltip
+    const tooltip = d3.select("#barChartContainer")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class",
+             "bg-white absolute text-black/75 text-[12px] p-[10px] rounded-lg pointer-events-none transition max-w-[20%]"
+            );
+
+    // Three function that change the tooltip when user hover / move / leave a cell
+    const mouseover = function(event, d) {
+        tooltip
+            .html("<p class='text-black mb-1 font-semibold'>Rating: " + d.category + "</p>" + d.tracks)
+            .style("opacity", 1)
+
+    }
+
+    const mousemove = function(event, d) {
+        // console.log(event.offsetX, event.offsetY);
+        tooltip
+            .style("left",(event.pageX)+15+"px")
+            .style("top",((event.pageY)-10)+"px")
+    }
+
+    const mouseleave = function(event, d) {
+        tooltip
+            .style("opacity", 0)
+    }
+
+    // Axis
     const x = d3.scaleBand()
         .domain(dataset.map(d => d.category))
         .range([0, innerWidth])
@@ -46,7 +75,6 @@ function drawChart(data) {
         .call(d3.axisLeft().scale(y).ticks(d3.max(dataset, d => d.value)));
 
     // Add bars
-
     g.selectAll(".bar")
         .data(dataset)
         .enter()
@@ -55,7 +83,10 @@ function drawChart(data) {
         .attr("x", d => x(d.category))
         .attr("y", d => y(d.value))
         .attr("width", x.bandwidth())
-        .attr("height", d => innerHeight - y(d.value));
+        .attr("height", d => innerHeight - y(d.value))
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
 
     // Add the axis labels
     svg.append("text")

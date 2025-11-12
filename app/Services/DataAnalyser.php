@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Http;
 
 class DataAnalyser
 {
-    private function createLineChartData(Collection $tracks, $mean)
+    protected function createLineChartData(Collection $tracks, $mean)
     {
         // Line Chart data
         $line_chart_ratings = $tracks->map(function ($track, $n) {
@@ -47,7 +47,7 @@ class DataAnalyser
         ];
     }
 
-    private function createBarChartData(Collection $tracks)
+    protected function createBarChartData(Collection $tracks)
     {
         $bar_chart_data = [];
 
@@ -55,6 +55,9 @@ class DataAnalyser
             $bar_chart_data[] = [
                 'category' => ( $n + 1 ),
                 'value' => $tracks->where('rating', ($n+1))->count(),
+                'tracks' => "<div class='overflow-ellipsis line-clamp-1'>"
+                    . $tracks->where('rating', ($n+1))->select('name')->flatten()->implode("</div><div class='overflow-ellipsis line-clamp-1'>")
+                    . "</div>",
             ];
         }
 

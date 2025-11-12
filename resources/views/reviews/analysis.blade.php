@@ -6,7 +6,7 @@
 <x-layout>
     <h1 class=" text-[34px] font-bold mb-10">{{ $heading }}</h1>
 
-    <div class="grid grid-cols-6 gap-3">
+    <div class="grid grid-cols-6 gap-3 mb-20">
         <div class="col-start-1 col-span-4 row-span-2 border border-white/75 hover:border-white rounded-lg bg-white/10">
             <script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -92,7 +92,7 @@
                 <img
                     src="{{ $artist['image'] }}"
                     alt="Artist Image"
-                    class="aspect-auto object-cover object-center h-full"
+                    class="aspect-auto object-cover object-center h-full pointer-events-none"
                 >
             </div>
         </div>
@@ -108,8 +108,8 @@
                 Top Features
             </div>
 
-            @if ($features)
-                <ol class="flex flex-col gap-2">
+            @if ($features->isNotEmpty())
+                <ol class="flex flex-col gap-1">
                     @foreach ($features as $n => $feature)
                         <li class="text-white/80 first:text-white text-[12px] last:text-white/70 line-clamp-1">
                             {{ ($n + 1) . '. ' . $feature }}
@@ -117,8 +117,8 @@
                     @endforeach
                 </ol>
             @else
-                <div>
-                    No features.
+                <div class="text-[12px] text-white/80">
+                    No features on this {{ $album->type === 'EP' ? 'EP.' : 'album.' }}
                 </div>
             @endif
         </div>
