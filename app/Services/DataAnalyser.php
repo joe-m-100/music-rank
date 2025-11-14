@@ -16,13 +16,6 @@ class DataAnalyser
     protected function createLineChartData(Collection $tracks, $mean)
     {
         // Line Chart data
-        $line_chart_ratings = $tracks->map(function ($track, $n) {
-            return [
-                'x' => $n + 1,
-                'y' => $track['rating'],
-            ];
-        });
-
         $line_chart_mean = $tracks->map(function ($track, $n) use ($mean) {
             return [
                 'x' => $n + 1,
@@ -37,6 +30,17 @@ class DataAnalyser
             return [
                 'x' => $n + 1,
                 'y' => round(($current_sum) / ($n + 1), 2),
+            ];
+        });
+
+        $line_chart_ratings = $tracks->map(function ($track, $n) use ($line_chart_sentiment) {
+            return [
+                'x' => $n + 1,
+                'y' => $track['rating'],
+                'html' => [
+                    'name' => "<p class='font-semibold mb-1'>" . $track['name'] . "</p>",
+                    'sentiment' => $line_chart_sentiment[$n]['y'],
+                ]
             ];
         });
 

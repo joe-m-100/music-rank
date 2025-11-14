@@ -20,7 +20,7 @@
                 id="lineChartContainer"
                 class="
                     px-3 py-4  aspect-video
-                    w-full
+                    w-full relative
                     "
             >
             </div>

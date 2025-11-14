@@ -45,20 +45,17 @@ function calculateIdealLegendPosition(ratings) {
         return ! ratings.some(rating => isIntersecting(position, rating));
     });
 
-    console.log(valid);
     return valid[0]?.position || positions[0].position;
 }
 
 
 function drawChart(data) {
-
     const container = d3.select("#lineChartContainer")
     container.selectAll("*").remove()
 
     const { width, height } = container.node().getBoundingClientRect();
 
-    // Create SVG element and append it to the chart container
-
+    // Create SVG element and append it to the chart container 676
     const svg = container
         .append("svg")
         .attr("width", "100%")
@@ -71,8 +68,11 @@ function drawChart(data) {
 
     const g = svg
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`)
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const tooltip = d3.select("#lineChartContainer")
+        .append("div")
+        .attr("class", "bg-white absolute text-black text-[12px] p-[10px] rounded-lg hidden pointer-events-none *:whitespace-nowrap");
 
     const dataset_mean = data.mean;
     const dataset_sentiment = data.sentiment;
@@ -133,6 +133,63 @@ function drawChart(data) {
         .attr("stroke-width", 3)
         .attr("d", line);
 
+    // Add circle element
+    const circle =  g.append("circle")
+        .attr("r", 0)
+        .attr("fill", "white")
+        .style("stroke", "white")
+        .attr("opacity", 0.9)
+        .style("pointer-events", "none");
+
+    const listeningRect = g.append("rect")
+        .attr("width", innerWidth)
+        .attr("height", innerHeight)
+        .attr("class", "[pointer-events:all] z-[1] [fill-opacity:0] [stroke-opacity:0]")
+
+    const container_element = document.getElementById("lineChartContainer");
+    const container_dimensions = container_element.getBoundingClientRect();
+
+    const scaleWidth = innerWidth / container_dimensions.width;
+    const offsetTooltip = 60 * scaleWidth;
+
+    listeningRect.on("mousemove", function (event) {
+        const [xCoord] = d3.pointer(event, this);
+        const bisectTrack = d3.bisector(d => d.x).left;
+        const x0 = x.invert(xCoord);
+        const i = bisectTrack(dataset_ratings, x0, 1);
+        const d0 = dataset_ratings[i - 1];
+        const d1 = dataset_ratings[i];
+        const d = x0 - d0.x > d1.x - x0 ? d1 : d0;
+        const xPos = x(d.x);
+        const yPos = y(d.y);
+
+        // Update circle position
+        circle.attr("cx", xPos)
+            .attr("cy", yPos);
+
+        // Add transition for the circle
+        circle.transition()
+            .duration(50)
+            .attr("r", 3);
+
+        tooltip
+            .style("display", "block")
+            .style("left", `${(scaleWidth * xPos) + (12 * scaleWidth) + (18 * scaleWidth) + offsetTooltip}px`)
+            .style("top", `${yPos}px`)
+            .html(d.html.name + "<p>Rating: " + d.y + "</p><p>Sentiment: " + d.html.sentiment + "</p>");
+    });
+
+    listeningRect.on("mouseleave", function () {
+        circle.transition()
+            .duration(50)
+            .attr("r", 0);
+
+        tooltip
+            .style("display", "none");
+    });
+
+
+
     // Create Legend
     const keys = ["Ratings", "Mean", "Sentiment"];
     const colour = ["#18DB5C", "red", "yellow"];
@@ -185,4 +242,4 @@ function drawChart(data) {
 
 
 drawChart(window.lineChartData);
-window.addEventListener("resize", drawChart(window.lineChartData));
+window.addEventListener("resize", () => { drawChart(window.lineChartData); });
