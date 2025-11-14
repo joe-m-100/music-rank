@@ -7,6 +7,7 @@ use App\Models\Artist;
 use App\Models\Track;
 use App\Services\DataAnalyser;
 use App\Services\SpotifyClient;
+use App\Services\DatabaseAdmin;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -18,7 +19,8 @@ class ReviewController extends Controller
 {
     public function __construct(
         protected SpotifyClient $client,
-        protected DataAnalyser $analyser
+        protected DataAnalyser $analyser,
+        protected DatabaseAdmin $admin
     )
     {
     }
@@ -41,91 +43,16 @@ class ReviewController extends Controller
         ]);
     }
 
-
-    protected ?\StdClass $object;
-
-    public function object()
-    {
-        // $array = [null];
-
-        // $doesntexist[0] ?? 10; // doesn't throw
-        // ($doesntexist)[0] ?? 10; // throws
-
-        // $expression ?: $fallback;
-        // $_stored = (expression) ? $_stored : $fallback;
-
-        // $a = 10;
-        // $a ?: $fallback;
-        // $a += 1 ?: $fallback;
-        // $a += 1 ? $a += 1 : $fallback;
-
-
-        return $this->object ??= new \StdClass;
-    }
-
-
     public function save(Request $request, $album_id)
     {
-        $album = $this->client->getAlbum($album_id);
-        $artist_image = $this->client->getArtist($album['artist']['id'])['image'];
+        $this->admin->saveAlbum($album_id, $request);
 
-        // Create Artist
-        $artist = Artist::where('artist_id', $album['artist']['id'])->first();
-        if (! $artist) {
-            $artist = Artist::create([
-                'name' => $album['artist']['name'],
-                'image' => $artist_image ?: 'https://placehold.co/500',
-                'artist_id' => $album['artist']['id'],
-            ]);
-        }
-
-        // Create Album and related Tracks
-        $album_entry = Album::where('album_id', $album['id'])->first();
-        $previously_reviewed = !! $album_entry;
-
-        if (! $previously_reviewed) {
-            $album_entry = Album::create([
-                'title' => $album['title'],
-                'image' => $album['image'] ?: 'https://placehold.co/500',
-                'type' => $album['type'] === 'album' ? 'Album' : 'EP',
-                'album_id' => $album['id'],
-                'artist_id' => $artist->id,
-            ]);
-        }
-
-        foreach ($album['tracks'] as $track) {
-            Track::updateOrCreate(
-                [
-                    'track_id' => $track['id'],
-                    'album_id' => $album_entry->id,
-                    'name' => $track['name'],
-                    'image' => $album['image'],
-                    'artists' => $track['artists']->implode(';'),
-                    'duration' => $track['duration'],
-                ],
-                [
-                    'rating' => $request[$track['id']],
-                ],
-            );
-        }
-
-        return redirect('/');
+        return redirect('/reviewed-albums');
     }
 
     public function index()
     {
-        $albums = Album::orderBy('created_at', 'desc')
-            ->get()
-            ->collect()
-            ->map(function ($album) {
-                $avg_rating = Track::whereAlbumId($album['id'])->avg('rating');
-
-                return [
-                    'id' => $album['id'],
-                    'rating'=> number_format(round($avg_rating, 1), 1),
-                    'image' => $album['image'],
-                ];
-            });
+        $albums = $this->admin->getAllReviews();
 
         return view('reviews.index', [
             'albums' => $albums,
@@ -133,10 +60,10 @@ class ReviewController extends Controller
         ]);
     }
 
-    public function analysis($album_id)
+    public function analysis(int $album_id)
     {
-        $album = Album::query()->whereId($album_id)->first();
-        $tracks = Track::query()->whereAlbumId($album_id)->get();
+        $album = $this->admin->getAlbum($album_id);
+        $tracks = $this->admin->getAlbumTracks($album_id);
 
         $mean = round($tracks->avg('rating'), 2);
         $core_stats = $this->analyser->getCoreStatistics($tracks, $mean);
