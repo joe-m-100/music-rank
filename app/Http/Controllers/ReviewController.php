@@ -25,6 +25,11 @@ class ReviewController extends Controller
     {
     }
 
+    public function homepage()
+    {
+        return view('reviews.homepage');
+    }
+
     public function globals()
     {
 

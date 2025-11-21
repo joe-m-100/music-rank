@@ -168,39 +168,21 @@ class DataAnalyser
 
     public function getGlobalStatistics() : array
     {
-        return [
-            [
-                'title' => 'Albums Reviewed',
-                'value' => Album::whereType('Album')->get()->count()
-            ],
-            [
-                'title' => 'Extended Plays Reviewed',
-                'value' => Album::whereType('EP')->get()->count()
-            ],
-            [
-                'title' => 'Total Tracks Reviewed',
-                'value' => Track::get()->count()
-            ],
-            [
-                'title' => 'Average Track Rating',
-                'value' => round(Track::get()->avg('rating'), 2)
-            ],
-            [
-                'title' => 'Average Album Rating',
-                'value' => round(Album::withAvg('tracks', 'rating')->get()->avg('tracks_avg_rating'), 2)
-            ],
-            [
-                'title' => 'Highest Rated Album',
-                'value' => Album::query()->withAvg('tracks', 'rating')->orderByDesc('tracks_avg_rating')->first()?->title ?: 'None'
-            ],
-            [
-                'title' => 'Perfect Tracks',
-                'value' => Track::whereRating(10)->count()
-            ],
-
-        ];
+        return collect([
+            app(Statistics\AlbumReviews::class),
+            app(Statistics\ExtendedPlayReviews::class),
+            app(Statistics\TrackReviews::class),
+            app(Statistics\AverageTrackRating::class),
+            app(Statistics\AverageAlbumRating::class),
+            app(Statistics\HighestRatedAlbum::class),
+            app(Statistics\PerfectTracks::class),
+        ])
+        ->map(fn ($statistic) => [
+            'title' => $statistic->getTitle(),
+            'value' => $statistic->getStatistic(),
+        ])
+        ->all();
     }
-
 
     public function getChartData(Collection $tracks, float $mean) : array
     {

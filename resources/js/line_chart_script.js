@@ -72,7 +72,7 @@ function drawChart(data) {
 
     const tooltip = d3.select("#lineChartContainer")
         .append("div")
-        .attr("class", "bg-white absolute text-black text-[12px] p-[10px] rounded-lg hidden pointer-events-none *:whitespace-nowrap");
+        .attr("class", "bg-white absolute text-black text-[12px] p-[10px] rounded-lg opacity-0 transition pointer-events-none *:whitespace-nowrap");
 
     const dataset_mean = data.mean;
     const dataset_sentiment = data.sentiment;
@@ -173,7 +173,7 @@ function drawChart(data) {
             .attr("r", 3);
 
         tooltip
-            .style("display", "block")
+            .style("opacity", "100%")
             .style("left", `${(scaleWidth * xPos) + (12 * scaleWidth) + (18 * scaleWidth) + offsetTooltip}px`)
             .style("top", `${yPos}px`)
             .html(d.html.name + "<p>Rating: " + d.y + "</p><p>Sentiment: " + d.html.sentiment + "</p>");
@@ -185,7 +185,7 @@ function drawChart(data) {
             .attr("r", 0);
 
         tooltip
-            .style("display", "none");
+            .style("opacity", "0%");
     });
 
 

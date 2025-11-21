@@ -21,7 +21,7 @@
                 class="
                     px-3 py-4  aspect-video
                     w-full relative
-                    "
+                "
             >
             </div>
         </div>
@@ -31,7 +31,7 @@
                 col-span-2 row-span-1
                 px-4 py-2 bg-white/10 rounded-lg aspect-video
                 border border-white/75 hover:border-white
-                "
+            "
         >
             <div class="font-semibold text-lg mb-2">
                 Core Stats
@@ -49,7 +49,7 @@
                 col-span-2 row-span-1
                 px-4 py-2 bg-white/10 rounded-lg aspect-video
                 border border-white/75 hover:border-white
-                "
+            "
         >
             <div class="font-semibold text-lg mb-5">
                 Top Tracks
@@ -76,7 +76,7 @@
                 class="
                     px-3 py-4 bg-white/10 rounded-lg aspect-video
                     border border-white/75 hover:border-white w-full
-                    "
+                "
             >
             </div>
         </div>
@@ -86,13 +86,13 @@
                 col-start-1 col-span-1 row-start-3 row-span-1
                 bg-white/10 rounded-lg overflow-clip relative
                 border border-white/75 hover:border-white
-                "
+            "
         >
-            <div class=" w-full rounded-lg">
+            <div class="size-full rounded-lg">
                 <img
                     src="{{ $artist['image'] }}"
                     alt="Artist Image"
-                    class="aspect-auto object-cover object-center h-full pointer-events-none"
+                    class="aspect-auto object-cover object-center size-full pointer-events-none"
                 >
             </div>
         </div>
@@ -102,7 +102,7 @@
                 col-start- col-span-1 row-start-3 row-span-1
                 bg-white/10 rounded-lg py-2 px-4
                 border border-white/75 hover:border-white
-                "
+            "
         >
             <div class="font-semibold text-[16px] mb-3">
                 Top Features
@@ -128,7 +128,7 @@
                 col-start-1 col-span-2 py-2 px-4
                 bg-white/10 rounded-lg h-full
                 border border-white/75 hover:border-white
-                "
+            "
         >
             <div class="font-semibold text-lg mb-3">
                 {{ $artist['name'] }}

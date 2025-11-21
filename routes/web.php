@@ -4,10 +4,6 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpotifyController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('homepage');
-});
-
 Route::get('/test', function () {
     return view('test');
 });
@@ -32,4 +28,6 @@ Route::controller(ReviewController::class)->group(function () {
     Route::get('/global-statistics', 'globals');
 
     Route::get('/analysis/{album_id}', 'analysis');
+
+    Route::get('/', 'homepage');
 });
