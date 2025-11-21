@@ -2,7 +2,7 @@
 
 namespace App\Services\Statistics;
 
-use App\Models\Album;
+use App\Models\Track;
 
 class AverageTrackRating
 {
@@ -15,6 +15,6 @@ class AverageTrackRating
 
     public function getStatistic()
     {
-        return round(Album::withAvg('tracks', 'rating')->get()->avg('tracks_avg_rating'), 2);
+        return round(Track::get()->avg('rating'), 2);
     }
 }
