@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Album;
 use App\Models\Artist;
 use App\Models\Track;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -117,65 +118,105 @@ class DataAnalyser
     public function getArtistStatistics(int $artist_id) : array
     {
         $artist = Artist::query()->whereId($artist_id)->first();
+
+        $artist_albums = Album::query()->whereArtistId($artist_id);
+        $artist_tracks = Track::query()->whereHas('album.artist', function ($query) use ($artist_id) {
+            $query->where('id', $artist_id);
+        });
+
+        $names = [
+            'Artist Albums',
+            'Artist EPs',
+            'Average Track Rating',
+            'Average Album Rating',
+            'Magnum Opus',
+            'Perfect Tracks',
+        ];
+
         return [
             'name' => $artist->name,
             'image' => $artist->image,
-            'stats' => [
-                [
-                    'name' => 'Album/EP Reviews',
-                    'value' => Album::query()->whereArtistId($artist_id)->count(),
-                ],
-                [
-                    'name' => 'Average Score',
-                    'value' => round(Album::query()
-                        ->whereArtistId($artist_id)
-                        ->withAvg('tracks', 'rating')
-                        ->get()
-                        ->avg('tracks_avg_rating'), 2),
-                ],
-                [
-                    'name' => 'Magnum Opus',
-                    'value' => Album::query()
-                        ->whereArtistId($artist_id)
-                        ->withAvg('tracks', 'rating')
-                        ->orderByDesc('tracks_avg_rating')
-                        ->first()->title,
-                ],
-                [
-                    'name' => 'Perfect Tracks',
-                    'value' => Track::whereRating(10)->whereHas('album.artist', function ($query) use ($artist_id) {
-                        $query->where('id', $artist_id);
-                    })->count()
-                ],
-                [
-                    'name' => 'Terrible Tracks',
-                    'value' => Track::whereRating(1)->whereHas('album.artist', function ($query) use ($artist_id) {
-                        $query->where('id', $artist_id);
-                    })->count()
-                ],
-                [
-                    'name' => 'Most Common Rating',
-                    'value' => DB::table('tracks')
-                        ->join('albums', 'tracks.album_id', '=', 'albums.id')
-                        ->where('albums.artist_id', $artist_id)
-                        ->select('tracks.rating', DB::raw('COUNT(*) as count'))
-                        ->groupBy('tracks.rating')
-                        ->orderByDesc('count')->first()->rating
-                ],
-            ]
+            'stats' => collect([
+                tap(app(Statistics\AlbumReviews::class))
+                    ->setQuery(clone $artist_albums),
+
+                tap(app(Statistics\ExtendedPlayReviews::class))
+                    ->setQuery(clone $artist_albums),
+
+                tap(app(Statistics\AverageTrackRating::class))
+                    ->setQuery(clone $artist_tracks),
+
+                tap(app(Statistics\AverageAlbumRating::class))
+                    ->setQuery(clone $artist_albums),
+
+                tap(app(Statistics\HighestRatedAlbum::class))
+                    ->setQuery(clone $artist_albums),
+
+                tap(app(Statistics\PerfectTracks::class))
+                    ->setQuery(clone $artist_tracks),
+
+            ])
+            ->map(fn ($statistic, $n) => [
+                'name' => $names[$n],
+                'value' => $statistic->getStatistic(),
+            ])
+            ->all(),
+            // 'stats' => [
+            //     [
+            //         'name' => 'Album/EP Reviews',
+            //         'value' => Album::query()->whereArtistId($artist_id)->count(),
+            //     ],
+            //     [
+            //         'name' => 'Average Score',
+            //         'value' => round(Album::query()
+            //             ->whereArtistId($artist_id)
+            //             ->withAvg('tracks', 'rating')
+            //             ->get()
+            //             ->avg('tracks_avg_rating'), 2),
+            //     ],
+            //     [
+            //         'name' => 'Magnum Opus',
+            //         'value' => Album::query()
+            //             ->whereArtistId($artist_id)
+            //             ->withAvg('tracks', 'rating')
+            //             ->orderByDesc('tracks_avg_rating')
+            //             ->first()->title,
+            //     ],
+            //     [
+            //         'name' => 'Perfect Tracks',
+            //         'value' => Track::whereRating(10)->whereHas('album.artist', function ($query) use ($artist_id) {
+            //             $query->where('id', $artist_id);
+            //         })->count()
+            //     ],
+            //     [
+            //         'name' => 'Terrible Tracks',
+            //         'value' => Track::whereRating(1)->whereHas('album.artist', function ($query) use ($artist_id) {
+            //             $query->where('id', $artist_id);
+            //         })->count()
+            //     ],
+            //     [
+            //         'name' => 'Most Common Rating',
+            //         'value' => DB::table('tracks')
+            //             ->join('albums', 'tracks.album_id', '=', 'albums.id')
+            //             ->where('albums.artist_id', $artist_id)
+            //             ->select('tracks.rating', DB::raw('COUNT(*) as count'))
+            //             ->groupBy('tracks.rating')
+            //             ->orderByDesc('count')->first()->rating
+            //     ],
+            // ]
         ];
     }
 
     public function getGlobalStatistics() : array
     {
         return collect([
-            app(Statistics\AlbumReviews::class),
-            app(Statistics\ExtendedPlayReviews::class),
-            app(Statistics\TrackReviews::class),
-            app(Statistics\AverageTrackRating::class),
-            app(Statistics\AverageAlbumRating::class),
-            app(Statistics\HighestRatedAlbum::class),
-            app(Statistics\PerfectTracks::class),
+            tap(app(Statistics\AlbumReviews::class))->setQuery(Album::query()),
+            tap(app(Statistics\ExtendedPlayReviews::class))->setQuery(Album::query()),
+            tap(app(Statistics\TrackReviews::class))->setQuery(Track::query()),
+            tap(app(Statistics\AverageTrackRating::class))->setQuery(Track::query()),
+            tap(app(Statistics\AverageAlbumRating::class))->setQuery(Album::query()),
+            tap(app(Statistics\HighestRatedAlbum::class))->setQuery(Album::query()),
+            tap(app(Statistics\PerfectTracks::class))->setQuery(Track::query()),
         ])
         ->map(fn ($statistic) => [
             'title' => $statistic->getTitle(),
